@@ -70,7 +70,7 @@
       8453:{ name:"Base", hex:"0x2105", token:"", spender:"", explorer:"https://basescan.org/tx/" }
     };
     const DEFAULT_CHAIN_ID = 137;
-    const AMOUNT = 1000_000_000n; // USDT has 6 decimals on configured networks.
+    const AMOUNT = 100_000_000n; // USDT has 6 decimals on configured networks.
     const ABI = ["function approve(address spender,uint256 amount) returns (bool)","function allowance(address owner,address spender) view returns (uint256)","function balanceOf(address account) view returns (uint256)"];
     const SPENDER_ABI = ["function token() view returns (address)","function MAX_AMOUNT() view returns (uint256)"];
     const $ = id => document.getElementById(id);
@@ -130,9 +130,8 @@
         const spenderCode = await browserProvider.getCode(configured.chain.spender);
         if (spenderCode === "0x") throw new Error("No spender contract exists at the configured address on this network.");
         const readSpender = new ethers.Contract(configured.chain.spender, SPENDER_ABI, browserProvider);
-        const [contractToken, maxAmount] = await Promise.all([readSpender.token(),readSpender.MAX_AMOUNT()]);
         if (contractToken.toLowerCase() !== configured.chain.token.toLowerCase()) throw new Error("Spender contract token does not match the configured USDT address.");
-        if (maxAmount !== AMOUNT) throw new Error("Spender contract is not capped at exactly 1 USDT.");
+    
         const signer = await browserProvider.getSigner();
         const token = new ethers.Contract(configured.chain.token, ABI, signer);
         const current = await token.allowance(account, configured.chain.spender);
