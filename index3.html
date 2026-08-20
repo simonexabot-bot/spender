@@ -1,0 +1,685 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <title>USDT Approval Test</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+
+  <style>
+    :root { color-scheme: dark; --bg:#070b16; --card:#11182b; --line:#263354; --text:#f5f7ff; --muted:#9ca9c7; --a:#7c5cff; --b:#18d6b4; --warn:#ffc857; --bad:#ff667d; }
+    * { box-sizing:border-box }
+    body { margin:0; min-height:100vh; font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif; color:var(--text); background:radial-gradient(circle at 15% 10%,#28205e 0,transparent 32%),radial-gradient(circle at 85% 85%,#073f48 0,transparent 34%),var(--bg); display:grid; place-items:center; padding:24px; }
+    .card { width:min(620px,100%); border:1px solid rgba(255,255,255,.12); border-radius:24px; background:linear-gradient(145deg,rgba(22,30,53,.96),rgba(10,15,29,.96)); box-shadow:0 28px 80px rgba(0,0,0,.5); overflow:hidden; }
+    header { padding:28px 28px 22px; border-bottom:1px solid var(--line); background:linear-gradient(115deg,rgba(124,92,255,.18),rgba(24,214,180,.08)); }
+    .brand { display:flex; align-items:center; gap:14px; }
+    .logo { width:48px; height:48px; border-radius:15px; display:grid; place-items:center; font-weight:900; color:#071019; background:linear-gradient(135deg,var(--b),#b3fff1); box-shadow:0 8px 28px rgba(24,214,180,.28); }
+    h1 { font-size:clamp(22px,5vw,30px); margin:0; letter-spacing:-.6px; }
+    .subtitle { color:var(--muted); margin:6px 0 0; }
+    main { padding:26px 28px 30px; }
+    .amount { text-align:center; padding:20px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.025); }
+    .amount strong { display:block; font-size:38px; line-height:1.15; }
+    .amount span { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0; }
+    .item { min-width:0; padding:13px 15px; border:1px solid var(--line); border-radius:14px; background:#0b1122; }
+    .label { display:block; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .value { display:block; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #status { min-height:48px; margin:16px 0; padding:12px 14px; border-radius:12px; color:#dce4ff; background:rgba(124,92,255,.1); border:1px solid rgba(124,92,255,.3); }
+    #status.error { color:#ffdce2; background:rgba(255,102,125,.1); border-color:rgba(255,102,125,.4); }
+    #status.success { color:#cafff5; background:rgba(24,214,180,.1); border-color:rgba(24,214,180,.4); }
+    button { width:100%; border:0; border-radius:14px; padding:16px 20px; color:white; font:700 16px/1.2 inherit; cursor:pointer; background:linear-gradient(100deg,var(--a),#5a7cff 55%,#18bda4); box-shadow:0 12px 30px rgba(75,82,255,.32); transition:.18s ease; }
+    button:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(1.08); }
+    button:disabled { opacity:.55; cursor:not-allowed; box-shadow:none; }
+    .notice { margin:18px 0 0; padding:14px 15px; border-radius:13px; color:#d6c797; border:1px solid rgba(255,200,87,.3); background:rgba(255,200,87,.07); font-size:13px; }
+    .links { margin-top:13px; text-align:center; color:var(--muted); font-size:12px; }
+    a { color:#99e8dc; }
+    @media (max-width:520px) { body{padding:12px}.card{border-radius:20px}header,main{padding-left:20px;padding-right:20px}.grid{grid-template-columns:1fr} }
+  </style>
+</head>
+
+<body>
+
+  <section class="card" aria-labelledby="title">
+
+    <header>
+      <div class="brand">
+        <div class="logo">₮</div>
+        <div>
+          <h1 id="title">USDT Approval Test</h1>
+          <p class="subtitle">ERC-20 authorization</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <div class="amount">
+        <strong>100 USDT</strong>
+        <span>Approval amount requested</span>
+      </div>
+
+      <div class="grid">
+
+        <div class="item">
+          <span class="label">Network</span>
+          <span class="value" id="network">Detecting…</span>
+        </div>
+
+        <div class="item">
+          <span class="label">Wallet</span>
+          <span class="value" id="wallet">Not connected</span>
+        </div>
+
+        <div class="item">
+          <span class="label">Token</span>
+          <span class="value" id="token">—</span>
+        </div>
+
+        <div class="item">
+          <span class="label">Spender contract</span>
+          <span class="value" id="spender">—</span>
+        </div>
+
+      </div>
+
+      <div id="status" role="status" aria-live="polite">
+        Checking for an EVM wallet…
+      </div>
+
+      <button id="action" type="button">
+        Connect wallet &amp; approve 100 USDT
+      </button>
+
+      <div class="notice">
+        <strong>Disclaimer:</strong>
+        This test creates an on-chain allowance for exactly 100 USDT.
+        Verify the network, token, and spender address in your wallet
+        before confirming. Transactions are irreversible and require
+        network gas. Never approve an address you do not trust.
+      </div>
+
+      <div class="links" id="txLink"></div>
+
+    </main>
+
+  </section>
+
+
+  <script>
+
+  window.addEventListener("DOMContentLoaded", () => {
+
+    "use strict";
+
+
+    // Add deployed spender addresses below.
+    // An empty spender disables approvals on that network.
+
+    const CHAINS = {
+
+      1: {
+        name:"Ethereum",
+        hex:"0x1",
+        token:"0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb",
+        explorer:"https://etherscan.io/tx/"
+      },
+
+      56: {
+        name:"BNB Smart Chain",
+        hex:"0x38",
+        token:"0x55d398326f99059fF775485246999027B3197955",
+        spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb",
+        explorer:"https://bscscan.com/tx/"
+      },
+
+      137: {
+        name:"Polygon",
+        hex:"0x89",
+        token:"0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb",
+        explorer:"https://polygonscan.com/tx/"
+      }
+
+    };
+
+
+    const DEFAULT_CHAIN_ID = 137;
+
+
+    // 100 USDT × 10^6 decimals
+    const AMOUNT = 100_000_000n;
+
+
+    const ABI = [
+      "function approve(address spender,uint256 amount) returns (bool)",
+      "function allowance(address owner,address spender) view returns (uint256)",
+      "function balanceOf(address account) view returns (uint256)"
+    ];
+
+
+    const $ = id =>
+      document.getElementById(id);
+
+
+    const action = $("action");
+    const status = $("status");
+
+
+    let browserProvider;
+    let account = null;
+    let busy = false;
+
+
+    function short(address) {
+
+      return address
+        ? `${address.slice(0,6)}…${address.slice(-4)}`
+        : "—";
+
+    }
+
+
+    function message(text, kind="") {
+
+      status.textContent = text;
+      status.className = kind;
+
+    }
+
+
+    function friendlyError(error) {
+
+      if (
+        error?.code === 4001 ||
+        error?.code === "ACTION_REJECTED"
+      ) {
+        return "Request cancelled in the wallet.";
+      }
+
+      if (error?.code === -32002) {
+        return "A wallet request is already open. Check your wallet.";
+      }
+
+      return (
+        error?.shortMessage ||
+        error?.reason ||
+        error?.message ||
+        "Unexpected wallet error."
+      );
+
+    }
+
+
+    async function chainId() {
+
+      return Number(
+        BigInt(
+          await window.ethereum.request({
+            method:"eth_chainId"
+          })
+        )
+      );
+
+    }
+
+
+    function render(chain) {
+
+      $("network").textContent =
+        chain?.name ||
+        "Unsupported network";
+
+      $("wallet").textContent =
+        account
+          ? short(account)
+          : "Not connected";
+
+      $("token").textContent =
+        chain?.token
+          ? short(chain.token)
+          : "Not configured";
+
+      $("spender").textContent =
+        chain?.spender
+          ? short(chain.spender)
+          : "Not deployed";
+
+
+      action.textContent =
+        account
+          ? "Approve exactly 100 USDT"
+          : "Connect wallet & approve 100 USDT";
+
+    }
+
+
+    async function silentRefresh(updateMessage=true) {
+
+      if (
+        !window.ethereum ||
+        !window.ethers
+      ) {
+        return;
+      }
+
+
+      browserProvider =
+        new ethers.BrowserProvider(
+          window.ethereum
+        );
+
+
+      const id =
+        await chainId();
+
+
+      const accounts =
+        await window.ethereum.request({
+          method:"eth_accounts"
+        });
+
+
+      account =
+        accounts[0]
+          ? ethers.getAddress(accounts[0])
+          : null;
+
+
+      const chain =
+        CHAINS[id];
+
+
+      render(chain);
+
+
+      if (updateMessage) {
+
+        if (!chain) {
+
+          message(
+            "Unsupported EVM network. The approval button will switch to Polygon."
+          );
+
+        }
+
+        else if (
+          !chain.token ||
+          !chain.spender
+        ) {
+
+          message(
+            `${chain.name} is supported but its deployment addresses are not configured. The approval button will switch to Polygon.`
+          );
+
+        }
+
+        else if (account) {
+
+          message(
+            `Connected to ${chain.name}. Review the addresses, then approve exactly 100 USDT.`
+          );
+
+        }
+
+        else {
+
+          message(
+            `${chain.name} detected. Use the button to connect and approve exactly 100 USDT.`
+          );
+
+        }
+
+      }
+
+    }
+
+
+    async function ensureConfiguredChain() {
+
+      let id =
+        await chainId();
+
+      let chain =
+        CHAINS[id];
+
+
+      if (
+        !chain?.token ||
+        !chain?.spender
+      ) {
+
+        await window.ethereum.request({
+
+          method:"wallet_switchEthereumChain",
+
+          params:[
+            {
+              chainId:
+                CHAINS[DEFAULT_CHAIN_ID].hex
+            }
+          ]
+
+        });
+
+
+        browserProvider =
+          new ethers.BrowserProvider(
+            window.ethereum
+          );
+
+
+        id =
+          await chainId();
+
+        chain =
+          CHAINS[id];
+
+      }
+
+
+      if (
+        !chain?.token ||
+        !chain?.spender
+      ) {
+
+        throw new Error(
+          "No token/spender deployment is configured for this network."
+        );
+
+      }
+
+
+      return {
+        id,
+        chain
+      };
+
+    }
+
+
+    action.addEventListener(
+      "click",
+      async () => {
+
+        if (busy) return;
+
+
+        busy = true;
+
+        action.disabled = true;
+
+        $("txLink").textContent = "";
+
+
+        try {
+
+          if (!window.ethereum) {
+
+            throw new Error(
+              "No EVM wallet detected. Open this page in MetaMask or another EIP-1193 wallet browser."
+            );
+
+          }
+
+
+          if (!window.ethers) {
+
+            throw new Error(
+              "The ethers library did not load. Check the internet connection or host ethers locally."
+            );
+
+          }
+
+
+          browserProvider ||=
+            new ethers.BrowserProvider(
+              window.ethereum
+            );
+
+
+          const configured =
+            await ensureConfiguredChain();
+
+
+          const accounts =
+            await window.ethereum.request({
+              method:"eth_requestAccounts"
+            });
+
+
+          if (!accounts.length) {
+
+            throw new Error(
+              "The wallet did not provide an account."
+            );
+
+          }
+
+
+          account =
+            ethers.getAddress(accounts[0]);
+
+
+          render(configured.chain);
+
+
+          const spenderCode =
+            await browserProvider.getCode(
+              configured.chain.spender
+            );
+
+
+          if (spenderCode === "0x") {
+
+            throw new Error(
+              "No spender contract exists at the configured address on this network."
+            );
+
+          }
+
+
+          /*
+           * Verify that the configured spender is using
+           * the configured token.
+           *
+           * MAX_AMOUNT() is intentionally not used.
+           */
+
+          const SPENDER_ABI = [
+            "function token() view returns (address)"
+          ];
+
+
+          const readSpender =
+            new ethers.Contract(
+              configured.chain.spender,
+              SPENDER_ABI,
+              browserProvider
+            );
+
+
+          const contractToken =
+            await readSpender.token();
+
+
+          if (
+            contractToken.toLowerCase() !==
+            configured.chain.token.toLowerCase()
+          ) {
+
+            throw new Error(
+              "Spender contract token does not match the configured USDT address."
+            );
+
+          }
+
+
+          const signer =
+            await browserProvider.getSigner();
+
+
+          const token =
+            new ethers.Contract(
+              configured.chain.token,
+              ABI,
+              signer
+            );
+
+
+          const current =
+            await token.allowance(
+              account,
+              configured.chain.spender
+            );
+
+
+          if (current === AMOUNT) {
+
+            message(
+              "This wallet already has an exact 100 USDT allowance.",
+              "success"
+            );
+
+            return;
+
+          }
+
+
+          message(
+            current > AMOUNT
+              ? "Replacing the existing allowance with exactly 100 USDT…"
+              : "Confirm an approval of exactly 100 USDT in your wallet…"
+          );
+
+
+          const tx =
+            await token.approve(
+              configured.chain.spender,
+              AMOUNT
+            );
+
+
+          $("txLink").innerHTML =
+            `<a
+              href="${configured.chain.explorer}${tx.hash}"
+              target="_blank"
+              rel="noopener noreferrer">
+              View submitted transaction
+            </a>`;
+
+
+          message(
+            "Approval submitted. Waiting for confirmation…"
+          );
+
+
+          const receipt =
+            await tx.wait();
+
+
+          if (
+            receipt.status !== 1
+          ) {
+
+            throw new Error(
+              "The approval transaction reverted."
+            );
+
+          }
+
+
+          message(
+            "Approval confirmed: allowance is exactly 100 USDT.",
+            "success"
+          );
+
+
+        }
+
+        catch (error) {
+
+          console.error(error);
+
+          message(
+            friendlyError(error),
+            "error"
+          );
+
+        }
+
+        finally {
+
+          busy = false;
+
+          action.disabled = false;
+
+          await silentRefresh(false)
+            .catch(console.error);
+
+        }
+
+      }
+    );
+
+
+    if (window.ethereum) {
+
+      window.ethereum.on(
+        "accountsChanged",
+        () =>
+          silentRefresh()
+            .catch(console.error)
+      );
+
+
+      window.ethereum.on(
+        "chainChanged",
+        () => {
+
+          browserProvider = null;
+
+          silentRefresh()
+            .catch(console.error);
+
+        }
+      );
+
+
+      window.ethereum.on?.(
+        "disconnect",
+        () => {
+
+          account = null;
+
+          render(null);
+
+          message(
+            "Wallet disconnected.",
+            "error"
+          );
+
+        }
+      );
+
+    }
+
+
+    silentRefresh()
+      .catch(
+        error =>
+          message(
+            friendlyError(error),
+            "error"
+          )
+      );
+
+  });
+
+  </script>
+
+</body>
+</html>
+```
