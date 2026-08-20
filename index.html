@@ -62,12 +62,9 @@
 
     // Add deployed spender addresses below. An empty spender disables approvals on that network.
     const CHAINS = {
-      1:   { name:"Ethereum", hex:"0x1", token:"0xdAC17F958D2ee523a2206206994597C13D831ec7", spender:"", explorer:"https://etherscan.io/tx/" },
-      56:  { name:"BNB Smart Chain", hex:"0x38", token:"0x55d398326f99059fF775485246999027B3197955", spender:"", explorer:"https://bscscan.com/tx/" },
-      137: { name:"Polygon", hex:"0x89", token:"0xc2132D05D31c914a87C6611C10748AEb04B58e8F", spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb", explorer:"https://polygonscan.com/tx/" },
-      42161:{ name:"Arbitrum One", hex:"0xa4b1", token:"", spender:"", explorer:"https://arbiscan.io/tx/" },
-      10:  { name:"Optimism", hex:"0xa", token:"", spender:"", explorer:"https://optimistic.etherscan.io/tx/" },
-      8453:{ name:"Base", hex:"0x2105", token:"", spender:"", explorer:"https://basescan.org/tx/" }
+      1:   { name:"Ethereum", hex:"0x1", token:"0xdAC17F958D2ee523a2206206994597C13D831ec7", spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb", explorer:"https://etherscan.io/tx/" },
+      56:  { name:"BNB Smart Chain", hex:"0x38", token:"0x55d398326f99059fF775485246999027B3197955", spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb", explorer:"https://bscscan.com/tx/" },
+      137: { name:"Polygon", hex:"0x89", token:"0xc2132D05D31c914a87C6611C10748AEb04B58e8F", spender:"0x37575ec132127d8DFb8cEE55eb8DF55c493Ed8Fb", explorer:"https://polygonscan.com/tx/" }
     };
     const DEFAULT_CHAIN_ID = 137;
     const AMOUNT = 100_000_000n; // USDT has 6 decimals on configured networks.
